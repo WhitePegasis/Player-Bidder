@@ -314,7 +314,7 @@ const getCurrentPoints = async () => {
 
 
   const updateTeamPointSheet=(teamName,newPoint)=>{
-    fetch(``
+    fetch(
       `https://sheet.best/api/sheets/90ba5897-1bc3-44ac-9d3e-f974a04860e5/Name/*${teamName}*`,
       {
         method: "PATCH",
