@@ -69,7 +69,7 @@ function randomPlayer(){
 
     skillSpeciality.innerText=playerJsonData[sNo].Speciality;
 
-    if(playerJsonData[sNo].WK=="no"){
+    if(playerJsonData[sNo].WK=="No"){
       skillWk.style.display="none";
     }
     else{
