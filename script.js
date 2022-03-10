@@ -23,11 +23,12 @@ const soldDetail=document.getElementById("sold-detail");
 const gotoNextBidBtn= document.getElementById("goto-next-bid");
 
 const teamNames=["RR","CSK","KKR","DC","RCB","SRH"];
+//const indexNo=[];
 const maxPoint=1700; //maximum bid value
 
 //fetching data from sheet1
 let playerJsonData;
-let sNo;
+var sNo;
 const getData = async () => {   // input sheet: https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing
     try { 
       const res = await fetch( //sheet link (from sheet.best)
@@ -75,6 +76,7 @@ function randomPlayer(){
     else{
       skillWk.style.display="block";
     }
+    //return sNo;
 }
 
 function displayNextPlayer(){
@@ -85,7 +87,8 @@ function displayNextPlayer(){
     newBidValue.value="";
     newBidderName.value="select";
     playerImage.src="default-image.png";
-    randomPlayer(); 
+    const idx=randomPlayer(); 
+    //indexNo.push(idx);
   }
 }
 
@@ -154,10 +157,10 @@ const data={
     "Team":"",
     "Points":""
 }
-const addData=()=>{
+async function addData() {
     // adding sold player data to new sheet
     console.log("Data to add:", data);
-    fetch("https://sheet.best/api/sheets/ce111516-2c5b-4dba-8849-3165a10162be", {
+    await fetch("https://sheet.best/api/sheets/ce111516-2c5b-4dba-8849-3165a10162be", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -166,9 +169,9 @@ const addData=()=>{
       body: JSON.stringify(data),
     })
     .then((r) => r.json())
-    .then((data) => {
+    .then((res) => {
     // The response comes here
-    console.log("Added data",data);
+    console.log("Added data",res);
       console.log("Added data to https://docs.google.com/spreadsheets/d/1Gr6PnoMYJn0dQHQ0nPuLSg5xIsXL0qxgZx7sNKPDOIU/edit?usp=sharing" );
     })
     .catch((error) => {
@@ -178,13 +181,13 @@ const addData=()=>{
 }
 
   //Function to delete row from sheet
-  const deleteRow=()=>{  //input sheet: https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing
-    fetch(`https://sheet.best/api/sheets/5a4f985f-7b8b-4457-9928-e2d6a66f051c/${sNo}`, {  //change last didgit to manipulate the row you want to delete
+  async function deleteRow(no) {  //input sheet: https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing
+    await fetch(`https://sheet.best/api/sheets/5a4f985f-7b8b-4457-9928-e2d6a66f051c/${no}`, {  //change last digit to manipulate the row you want to delete
         method: "DELETE",
       })
         .then((response) => response.json())
-        .then((data) => {
-          console.log("deleted data:",data);
+        .then((res) => {
+          console.log(`deleted data: ${no}`,res);
           console.log("Deleted from https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing");
         })
         .catch((error) => {
@@ -220,10 +223,11 @@ const handleSubmit = async (e) => {
   };*/
 
   //Function to submit final data
-  const handleSubmit = async (e) => {
+  async function handleSubmit () {
       data.Name=currentPlayerName;
       data.Dept=currentPlayerDept;
       data.Year=currentPlayerYear;
+      //const no=parseInt(indexNo.pop());
     if(currentPlayerName==""){
       alert("Bidding is not started yet");
     }
@@ -234,15 +238,21 @@ const handleSubmit = async (e) => {
       data.Team="UNSOLD";
       data.Points="UNSOLD";
 
-      deleteRow();
-      addData();
+      await addData();
+     // await deleteRow(no);
+      
       console.log("Unsold");
     }
     else{
       data.Team=bidderName.innerText;
       data.Points=bidValue.innerText;
-      addData(); 
-      deleteRow(); 
+      console.log("Submitted data:1", data);
+      await addData(); 
+      //console.log(indexNo);
+      //await deleteRow(no); 
+
+      //console.log("Submitted data:2", data);
+
       const newPoints=parseInt(data.Points)+parseInt(teamPointArr[bidderIndex]); 
       console.log("newpoints:",newPoints ," arr[i]: ",teamPointArr[bidderIndex]); 
       teamPointArr[bidderIndex]=parseInt(newPoints);
@@ -313,8 +323,8 @@ const getCurrentPoints = async () => {
   getCurrentPoints();
 
 
-  const updateTeamPointSheet=(teamName,newPoint)=>{
-    fetch(
+  async function updateTeamPointSheet (teamName,newPoint) {
+    await fetch(
       `https://sheet.best/api/sheets/90ba5897-1bc3-44ac-9d3e-f974a04860e5/Name/*${teamName}*`,
       {
         method: "PATCH",
