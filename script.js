@@ -23,16 +23,19 @@ const soldDetail=document.getElementById("sold-detail");
 const gotoNextBidBtn= document.getElementById("goto-next-bid");
 
 const teamNames=["RR","CSK","KKR","DC","RCB","SRH"];
-//const indexNo=[];
 const maxPoint=1700; //maximum bid value
+
+//checking network connection
+isOnline();
+
 
 //fetching data from sheet1
 let playerJsonData;
-var sNo;
-const getData = async () => {   // input sheet: https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing
+let sNo;
+const getData = async () => {   // input sheet: 
     try { 
       const res = await fetch( //sheet link (from sheet.best)
-        "https://sheet.best/api/sheets/5a4f985f-7b8b-4457-9928-e2d6a66f051c"
+        "https://sheet.best/api/sheets/fdd6e107-1b92-485b-b055-03dde4c8b00b"
       );
       playerJsonData = await res.json();
       console.log(playerJsonData); // player data
@@ -51,6 +54,10 @@ const getData = async () => {   // input sheet: https://docs.google.com/spreadsh
   let currentPlayerPoints="";
 
 function randomPlayer(){
+  if(playerJsonData.length == 0){
+    alert("Player list empty!")
+  }
+  else{
     sNo=Math.floor(Math.random() * playerJsonData.length); //generating random number between 0 to length of data
     currentPlayerName=playerJsonData[sNo].Name;
     currentPlayerDept=playerJsonData[sNo].Dept;
@@ -76,7 +83,7 @@ function randomPlayer(){
     else{
       skillWk.style.display="block";
     }
-    //return sNo;
+  }
 }
 
 function displayNextPlayer(){
@@ -87,8 +94,7 @@ function displayNextPlayer(){
     newBidValue.value="";
     newBidderName.value="select";
     playerImage.src="default-image.png";
-    const idx=randomPlayer(); 
-    //indexNo.push(idx);
+    randomPlayer(); 
   }
 }
 
@@ -116,7 +122,7 @@ bidButton.addEventListener("click",()=>{
       alert("Current bid value less than previous bid!");
     }
     else if(currPoint > maxPoint){
-      console.log(teamPointArr[currIdx],val,currIdx);
+      console.log("current team point:"+teamPointArr[currIdx]+ " ,current bid"+val+" ,team index: "+currIdx);
       alert("Not enough point!")
     }
     else{
@@ -142,9 +148,12 @@ resetBtn.addEventListener("click",()=>{
 
 //Submit the data i.e delete from sheet 1 and add to sheet 2 with bid values
 submitBtn.addEventListener("click",()=>{
-  //let choice = prompt("Are you sure you want to submit?");
   if(confirm("Are you sure you want to submit?")==true){
-    handleSubmit();
+    if(isOnline()==1){
+      playerJsonData.splice(sNo,1);
+      handleSubmit();
+    }
+    
   }
 });
 
@@ -159,8 +168,7 @@ const data={
 }
 async function addData() {
     // adding sold player data to new sheet
-    console.log("Data to add:", data);
-    await fetch("https://sheet.best/api/sheets/ce111516-2c5b-4dba-8849-3165a10162be", {
+    await fetch("https://sheet.best/api/sheets/700cd185-8225-41c5-87d4-792966b91ccc", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -172,7 +180,7 @@ async function addData() {
     .then((res) => {
     // The response comes here
     console.log("Added data",res);
-      console.log("Added data to https://docs.google.com/spreadsheets/d/1Gr6PnoMYJn0dQHQ0nPuLSg5xIsXL0qxgZx7sNKPDOIU/edit?usp=sharing" );
+      //console.log("Added data to https://docs.google.com/spreadsheets/d/1Gr6PnoMYJn0dQHQ0nPuLSg5xIsXL0qxgZx7sNKPDOIU/edit?usp=sharing" );
     })
     .catch((error) => {
     // Errors are reported there
@@ -181,53 +189,27 @@ async function addData() {
 }
 
   //Function to delete row from sheet
-  async function deleteRow(no) {  //input sheet: https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing
-    await fetch(`https://sheet.best/api/sheets/5a4f985f-7b8b-4457-9928-e2d6a66f051c/${no}`, {  //change last digit to manipulate the row you want to delete
+  async function deleteRow(no) {  //input sheet: 
+    await fetch(`https://sheet.best/api/sheets/fdd6e107-1b92-485b-b055-03dde4c8b00b/${sNo}`, {  //change last digit to manipulate the row you want to delete
         method: "DELETE",
       })
         .then((response) => response.json())
         .then((res) => {
-          console.log(`deleted data: ${no}`,res);
-          console.log("Deleted from https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing");
+          console.log(`Deleted data: ${sNo} : `,res);
+          //console.log("Deleted from https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing");
         })
         .catch((error) => {
           console.error(error);
         });
   }
 
-/*
-const handleSubmit = async (e) => {
-    addData();
-
-    //e.preventDefault();
-    try {
-      const res = await fetch(
-        "https://sheet.best/api/sheets/b874102e-68f4-4005-9ef6-e9bbb10b316a",
-        {
-          method: "POST",
-          mode: "cors",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(data),
-        }
-      );
-      if (res.ok) {
-          console.log("done");
-        history.replace("/");
-      }
-    } catch (error) {
-        console.log("HIHIHIIII");
-      console.log(error);
-    }
-  };*/
 
   //Function to submit final data
   async function handleSubmit () {
       data.Name=currentPlayerName;
       data.Dept=currentPlayerDept;
       data.Year=currentPlayerYear;
-      //const no=parseInt(indexNo.pop());
+
     if(currentPlayerName==""){
       alert("Bidding is not started yet");
     }
@@ -239,24 +221,24 @@ const handleSubmit = async (e) => {
       data.Points="UNSOLD";
 
       await addData();
-     // await deleteRow(no);
+      await deleteRow();
       
       console.log("Unsold");
     }
     else{
       data.Team=bidderName.innerText;
       data.Points=bidValue.innerText;
-      console.log("Submitted data:1", data);
-      await addData(); 
-      //console.log(indexNo);
-      //await deleteRow(no); 
 
-      //console.log("Submitted data:2", data);
+      console.log("Submitted data: ", data);
+
+      await addData(); 
+
+      await deleteRow(); 
 
       const newPoints=parseInt(data.Points)+parseInt(teamPointArr[bidderIndex]); 
-      console.log("newpoints:",newPoints ," arr[i]: ",teamPointArr[bidderIndex]); 
+      console.log("newpoints:",newPoints ," Current point: ",teamPointArr[bidderIndex]); 
       teamPointArr[bidderIndex]=parseInt(newPoints);
-      console.log(data.Team);
+      console.log("Team:"+ data.Team+" ,New point:"+newPoints);
       updateTeamPointSheet(data.Team,newPoints);          //update points sheet
     }
 
@@ -300,22 +282,18 @@ let teamPointsJson;
 let teamPointArr=[];
 const getCurrentPoints = async () => {
     try {
-      const res = await fetch( //sheet link (from sheet.best)   // team point sheet: https://sheet.best/api/sheets/1d7eb585-89cf-4925-b18a-2681b62e70d1
-        "https://sheet.best/api/sheets/90ba5897-1bc3-44ac-9d3e-f974a04860e5"
+      const res = await fetch( //sheet link (from sheet.best)   // team point sheet:
+        "https://sheet.best/api/sheets/8cf0cbd3-afb0-472b-9e0f-7d1b83d9312a"
       );
       teamPointsJson = await res.json();
-      console.log(teamPointsJson); // player data
+      console.log("Team points: ",teamPointsJson); // player data
       console.log("size:"+teamPointsJson.length);
 
-      teamPointArr.push(teamPointsJson[0].total);
-      teamPointArr.push(teamPointsJson[1].total);
-      teamPointArr.push(teamPointsJson[2].total);
-      teamPointArr.push(teamPointsJson[3].total);
-      teamPointArr.push(teamPointsJson[4].total);
-      teamPointArr.push(teamPointsJson[5].total);
+      for(let i=0;i<teamPointsJson.length;i++){
+        teamPointArr.push(teamPointsJson[i].Total);
+       // teamNames.push(teamPointsJson[i].Name);  // to push names from the sheet instead of hardcoding
+      }
 
-      console.log(teamPointArr);
-      //setData(Object.keys(data).map((key) => data[key]));
     } catch (error) {
       console.log(error);
     }
@@ -325,7 +303,7 @@ const getCurrentPoints = async () => {
 
   async function updateTeamPointSheet (teamName,newPoint) {
     await fetch(
-      `https://sheet.best/api/sheets/90ba5897-1bc3-44ac-9d3e-f974a04860e5/Name/*${teamName}*`,
+      `https://sheet.best/api/sheets/8cf0cbd3-afb0-472b-9e0f-7d1b83d9312a/Name/*${teamName}*`,
       {
         method: "PATCH",
         mode: "cors",
@@ -333,13 +311,34 @@ const getCurrentPoints = async () => {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          total: `${newPoint}`,
+          Total: `${newPoint}`,
         }),
       }
     )
       .then((r) => r.json())
       .then(console.log)
       .catch(console.error);
+}
+
+
+document.getElementById("network-check").addEventListener("click",isOnline);
+
+
+//to check network connection
+function isOnline() {
+  
+  if (navigator.onLine) {
+    document.getElementById(
+      "network-check").style.color="#ffffff"; //white
+      return 1;
+        
+  } else {
+    document.getElementById(
+      "network-check").style.color="#fa5f4b"; //red
+      alert("No internet connection!");
+      return 0;
+    
+  }
 }
 
   
