@@ -23,7 +23,7 @@ const soldDetail=document.getElementById("sold-detail");
 const gotoNextBidBtn= document.getElementById("goto-next-bid");
 
 const teamNames=["RR","CSK","KKR","DC","RCB","SRH"];
-const maxPoint=1700; //maximum bid value
+const maxPoint=500; //maximum bid value
 
 //checking network connection
 isOnline();
