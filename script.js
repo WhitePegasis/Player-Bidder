@@ -31,7 +31,7 @@ let sNo;
 const getData = async () => {   // input sheet: https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing
     try { 
       const res = await fetch( //sheet link (from sheet.best)
-        "https://sheet.best/api/sheets/4af5b600-38ab-40df-8f16-0e1a652b3f86"
+        "https://sheet.best/api/sheets/5d3dd7d0-1f3e-4ace-ad00-678d7dab2974"
       );
       playerJsonData = await res.json();
       console.log(playerJsonData); // player data
@@ -157,7 +157,7 @@ const data={
 const addData=()=>{
     // adding sold player data to new sheet
     console.log("Data to add:", data);
-    fetch("https://sheet.best/api/sheets/fb70e40a-5f93-4c7d-8bb5-536bb7d3a364", {
+    fetch("https://sheet.best/api/sheets/04dbfa14-646c-454d-ad33-e2615ed3ddd1", {
       method: "POST",
       mode: "cors",
       headers: {
@@ -179,7 +179,7 @@ const addData=()=>{
 
   //Function to delete row from sheet
   const deleteRow=()=>{  //input sheet: https://docs.google.com/spreadsheets/d/1YbGjVNyBVm14jz-FsrWaziq7EuRvUoX8a8PFuGkaLJo/edit?usp=sharing
-    fetch(`https://sheet.best/api/sheets/4af5b600-38ab-40df-8f16-0e1a652b3f86/${sNo}`, {  //change last didgit to manipulate the row you want to delete
+    fetch(`https://sheet.best/api/sheets/5d3dd7d0-1f3e-4ace-ad00-678d7dab2974/${sNo}`, {  //change last didgit to manipulate the row you want to delete
         method: "DELETE",
       })
         .then((response) => response.json())
@@ -290,7 +290,7 @@ let teamPointArr=[];
 const getCurrentPoints = async () => {
     try {
       const res = await fetch( //sheet link (from sheet.best)   // team point sheet: https://sheet.best/api/sheets/1d7eb585-89cf-4925-b18a-2681b62e70d1
-        "https://sheet.best/api/sheets/1d7eb585-89cf-4925-b18a-2681b62e70d1"
+        "https://sheet.best/api/sheets/01a7b801-a0a4-447d-b1b3-1adcea8c318b"
       );
       teamPointsJson = await res.json();
       console.log(teamPointsJson); // player data
@@ -314,7 +314,7 @@ const getCurrentPoints = async () => {
 
   const updateTeamPointSheet=(teamName,newPoint)=>{
     fetch(
-      `https://sheet.best/api/sheets/1d7eb585-89cf-4925-b18a-2681b62e70d1/team/*${teamName}*`,
+      `https://sheet.best/api/sheets/01a7b801-a0a4-447d-b1b3-1adcea8c318b/team/*${teamName}*`,
       {
         method: "PATCH",
         mode: "cors",
